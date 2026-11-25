@@ -13,10 +13,11 @@ on:
 # (an access token with Read & Write scope, created under Account settings > Personal
 # access tokens; the account password does not work when 2FA is enabled).
 #
-# The dbt project lives in myproject/, so every step works from there.
+# The dbt project lives in myproject/, so steps run from there with
+# `working-directory`. Do not add DBT_PROJECT_DIR: dbt reads it as --project-dir and
+# would look for myproject/myproject.
 env:
   REGISTRY: docker.io
-  DBT_PROJECT_DIR: myproject
 
 jobs:
   # `dbt compile` would need a live Snowflake connection, but `dbt parse` renders
