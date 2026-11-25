@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: ordersystem
+    # database: dbtdemo
+    database: MYPROJECT
+    # schema: raw
+    schema: RAW
+    tables:
+      - name: orders
+      - name: customers
+      - name: products
+      - name: order_items

@@ -1,0 +1,5 @@
+# Pinned to the versions the image is built and tested with.
+# dbt-core is pinned explicitly because a bare dbt-snowflake pin currently
+# resolves to a dbt-core beta (1.13.0b1) on PyPI.
+dbt-core==1.12.7
+dbt-snowflake==1.12.5
