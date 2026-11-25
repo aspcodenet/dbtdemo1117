@@ -12,8 +12,11 @@ on:
 # (the Docker Hub account or organisation that owns the repo) and DOCKERHUB_TOKEN
 # (an access token with Read & Write scope, created under Account settings > Personal
 # access tokens; the account password does not work when 2FA is enabled).
+#
+# The dbt project lives in myproject/, so every step works from there.
 env:
   REGISTRY: docker.io
+  DBT_PROJECT_DIR: myproject
 
 jobs:
   # `dbt compile` would need a live Snowflake connection, but `dbt parse` renders
@@ -22,6 +25,9 @@ jobs:
   # built or pushed unless this passes.
   parse:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: myproject
 
     steps:
       - name: Check out repository
@@ -32,6 +38,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: myproject/requirements.txt
 
       - name: Install dbt
         run: pip install -r requirements.txt
@@ -91,8 +98,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./myproject
+          file: ./myproject/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
