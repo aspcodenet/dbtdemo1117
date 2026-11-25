@@ -12,12 +12,41 @@ on:
 # (the Docker Hub account or organisation that owns the repo) and DOCKERHUB_TOKEN
 # (an access token with Read & Write scope, created under Account settings > Personal
 # access tokens; the account password does not work when 2FA is enabled).
-
 env:
   REGISTRY: docker.io
 
 jobs:
+  # `dbt compile` would need a live Snowflake connection, but `dbt parse` renders
+  # every model's Jinja and resolves every ref()/source() against the project, so it
+  # fails on syntax errors as well as on missing models and sources. Nothing is
+  # built or pushed unless this passes.
+  parse:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dbt
+        run: pip install -r requirements.txt
+
+      - name: Compile the project
+        run: dbt parse --profiles-dir .
+        env:
+          # dbt never connects here, but profiles.yml requires these to be set
+          SNOWFLAKE_ACCOUNT: dummy
+          SNOWFLAKE_USER: dummy
+          SNOWFLAKE_PASSWORD: dummy
+          SNOWFLAKE_WAREHOUSE: dummy
+
   build:
+    needs: parse
     runs-on: ubuntu-latest
     permissions:
       contents: read
